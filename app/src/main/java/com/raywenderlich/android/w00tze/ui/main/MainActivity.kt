@@ -31,45 +31,61 @@
 
 package com.raywenderlich.android.w00tze.ui.main
 
+import android.content.Context
+import android.net.ConnectivityManager
 import android.os.Bundle
 import android.support.design.widget.BottomNavigationView
 import android.support.v4.app.Fragment
 import android.support.v7.app.AppCompatActivity
+import android.widget.Toast
 import com.raywenderlich.android.w00tze.R
-import com.raywenderlich.android.w00tze.ui.profile.ProfileFragment
 import com.raywenderlich.android.w00tze.ui.gists.GistsFragment
+import com.raywenderlich.android.w00tze.ui.profile.ProfileFragment
 import com.raywenderlich.android.w00tze.ui.repos.ReposFragment
 import kotlinx.android.synthetic.main.activity_main.*
 
 
 class MainActivity : AppCompatActivity() {
 
-  private val reposFragment = ReposFragment()
-  private val gistsFragment = GistsFragment()
-  private val profileFragment = ProfileFragment()
+    private val reposFragment = ReposFragment()
+    private val gistsFragment = GistsFragment()
+    private val profileFragment = ProfileFragment()
 
-  private val onNavigationItemSelectedListener = BottomNavigationView.OnNavigationItemSelectedListener { item ->
-    val fragment = when (item.itemId) {
-      R.id.navigation_repos -> reposFragment
-      R.id.navigation_gists -> gistsFragment
-      R.id.navigation_profile -> profileFragment
-      else -> ReposFragment()
+    private val onNavigationItemSelectedListener = BottomNavigationView.OnNavigationItemSelectedListener { item ->
+        val fragment = when (item.itemId) {
+            R.id.navigation_repos -> reposFragment
+            R.id.navigation_gists -> gistsFragment
+            R.id.navigation_profile -> profileFragment
+            else -> ReposFragment()
+        }
+        switchToFragment(fragment)
+        true
     }
-    switchToFragment(fragment)
-    true
-  }
 
-  override fun onCreate(savedInstanceState: Bundle?) {
-    super.onCreate(savedInstanceState)
-    setContentView(R.layout.activity_main)
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
 
-    navigation.setOnNavigationItemSelectedListener(onNavigationItemSelectedListener)
+        navigation.setOnNavigationItemSelectedListener(onNavigationItemSelectedListener)
 
-    switchToFragment(reposFragment)
-  }
+        switchToFragment(reposFragment)
+        checkConnectivity()
+    }
 
-  private fun switchToFragment(fragment: Fragment) {
-    val transaction = supportFragmentManager.beginTransaction()
-    transaction.replace(R.id.main_container, fragment).commit()
-  }
+    private fun switchToFragment(fragment: Fragment) {
+        val transaction = supportFragmentManager.beginTransaction()
+        transaction.replace(R.id.main_container, fragment).commit()
+    }
+
+    private fun checkConnectivity() {
+        val cm = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val activityNetwork = cm.activeNetworkInfo
+        val isConnect = activityNetwork != null && activityNetwork.isConnectedOrConnecting
+        if (!isConnect) {
+            Toast.makeText(this, "Check netwok connection", Toast.LENGTH_SHORT).show()
+        } else {
+            Toast.makeText(this, "Is Connected", Toast.LENGTH_SHORT).show()
+        }
+    }
+
 }
